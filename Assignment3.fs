@@ -18,7 +18,7 @@ Under dynamic scoping the result is 11
 
 // Problem 2
 
-let rec list_fun (f: 'a) a xs = failwith "to implement"
+let rec list_fun (f: 'a -> 'a) (a: 'a) (xs: 'a list) :'a  = failwith "to implement"
 let rec option_fun f a xo = failwith "to implement"
 
 // Problem 3
