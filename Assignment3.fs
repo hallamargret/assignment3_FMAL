@@ -1,7 +1,7 @@
 // T-501-FMAL, Spring 2021, Assignment 3
 
 (*
-STUDENT NAMES HERE: ...
+STUDENT NAMES HERE: Eva Sol Petursdottir and Halla Margret Jonsdottir
 
 
 *)
@@ -12,8 +12,8 @@ module Assignment3
 
 (*
 ANSWER 1 HERE:
-Under static scoping the result is ...
-Under dynamic scoping the result is ...
+Under static scoping the result is 31
+Under dynamic scoping the result is 11
 *)
 
 // Problem 2
@@ -262,7 +262,41 @@ let rec eval (e : expr) (env : envir) : value =
 
 // Problem 4
 
-let rec unify (t1 : typ) (t2 : typ) : unit = failwith "to implement"
+let rec unify (t1 : typ) (t2 : typ) : unit = //failwith "to implement"
+    match t1 with
+    | Float -> match t2 with
+                | Float -> ()
+                | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                | Fun (l, t) -> unify t t1
+
+    | Vector i -> match t2 with
+                    | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                    | Vector i2 -> unifyLength i i2
+                    | Fun (l,t) -> unify t1 t
+    
+    | Fun (l, t) -> match t2 with
+                    | Float -> unify t2 t
+                    | Vector i -> unify t2 t
+    
+    
+    // match t1, t2 with
+    // //| Float, Float -> 
+    // | Float , Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+    // | Vector i, Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+    // | Vector i1, Vector i2 -> unifyLength i1 i2
+    // | Fun (l, t), Vector i -> unifyLength (unify Vector l t) i
+    // | _ , _ -> ()
+
+
+    //| Fun (l, t), Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+    //| Float, Fun (l, t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+    //| Vector i, Fun (l, t) -> //failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+    
+    
+    
+
+
+//    | Fun (l, t) -> sprintf "Vector(%s) -> %s" (showLength l) (showType t)
 
 // Problem 5
 
