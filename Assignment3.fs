@@ -18,38 +18,46 @@ Under dynamic scoping the result is 11
 
 // Problem 2
 
-let rec list_fun f a xs = failwith "to implement"
+let rec list_fun (f: 'a) a xs = failwith "to implement"
 let rec option_fun f a xo = failwith "to implement"
 
 // Problem 3
 
 (*
 ANSWER 3(i) HERE:
-
+Yes, the pair 'a -> 'a and 'a -> int list unify when 'a |-> int list
+Then: int list -> int list and int list -> int list
 *)
 
 (*
 ANSWER 3(ii) HERE:
-
+Yes, the pair'a -> 'b and 'a -> int list can be unified when 'b |-> int list
+Then: 'a -> int list and 'a -> int list
 *)
 
 (*
 ANSWER 3(iii) HERE:
-
+Yes, (int -> int) -> (int -> int) and 'a -> 'a unify when 'a |-> (int -> int)
+Then: (int -> int) -> (int -> int) and (int -> int) -> (int -> int) 
 *)
 
 (*
 ANSWER 3(iv) HERE:
-
+Yes, 'a list -> 'a list and 'b -> 'b unify when 'b |-> 'a list
+Then: 'a list -> 'a list and 'a list -> 'a list
 *)
 
 (*
 ANSWER 3(v) HERE:
-
+No, the pair 'a list -> 'a and 'b -> 'b does not unify because 'b -> 'b has to be of the same type and
+ ’a and ’a list (cannot be of the same type) cannot be unified so we do not create infinite types.
+So because 'a list -> 'a will never be of the same type, then 'b -> 'b will never unify 'a list -> 'a.
 *)
 
 (*
 ANSWER 3(vi) HERE:
+Yes, the pair ('a -> 'b) -> 'c and 'd -> 'e list can be unified when 'd |-> ('a -> 'b) and 'c |-> 'e list.
+Then: ('a -> 'b) -> 'e list and ('a -> 'b) -> 'e list 
 
 *)
 
@@ -262,21 +270,22 @@ let rec eval (e : expr) (env : envir) : value =
 
 // Problem 4
 
-let rec unify (t1 : typ) (t2 : typ) : unit = //failwith "to implement"
+let rec unify (t1 : typ) (t2 : typ) : unit =
     match t1 with
     | Float -> match t2 with
                 | Float -> ()
                 | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-                | Fun (l, t) -> unify t t1
+                | Fun (l, t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
 
     | Vector i -> match t2 with
                     | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
                     | Vector i2 -> unifyLength i i2
-                    | Fun (l,t) -> unify t1 t
+                    | Fun (l,t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
     
     | Fun (l, t) -> match t2 with
-                    | Float -> unify t2 t
-                    | Vector i -> unify t2 t
+                    | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                    | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                    | Fun (li, ti) -> unify t ti
     
     
     // match t1, t2 with
@@ -307,9 +316,26 @@ let rec infer (e : expr) (lvl : int) (env : tyenvir) : typ =
         let len = List.length v
         if len = 0 then failwith "empty vectors not allowed"
         Vector (LNum len)
-    | Plus (e1, e2) -> failwith "to implement"
-    | Average e -> failwith "to implement"
-    | Scale (e1, e2) -> failwith "to implement"
+    | Plus (e1, e2) -> 
+        let t1 = infer e1 lvl env 
+        let t2 = infer e2 lvl env
+        unify t1 t2;
+        ensureFloatOrVector t1;
+        ensureFloatOrVector t2;
+        match t1, t2 with
+        | Float, Float -> Float
+        | Vector l, Vector l2 -> Vector l
+        //| Float, Vector l -> failwith (sprintf "cannot unify %s and %s differ" (showLength l) (showLength l2))
+    | Average e ->
+        let t = infer e lvl env
+        ensureVector t;
+        Float
+    | Scale (e1, e2) -> 
+        let t1 = infer e1 lvl env
+        let t2 = infer e2 lvl env 
+        ensureFloat t1;
+        ensureVector t2;
+        t2
     | IfPositive (e, e1, e2) ->
         let t = infer e lvl env
         ensureFloat t;

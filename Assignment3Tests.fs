@@ -8,29 +8,29 @@ let unifyTest t1 t2 =
   o := (NoLink "'o", 0);
   unify t1 t2;
   showType t1
-// > unifyTest Float Float;;
+// > unifyTest Float Float;;     Ok
 // val it : string = "Float"
-// > unifyTest Float (Vector (LNum 2));;
+// > unifyTest Float (Vector (LNum 2));;      OK
 // System.Exception: cannot unify Float and Vector(2)
-// > unifyTest Float (Vector (LVar n));;
+// > unifyTest Float (Vector (LVar n));;                OK
 // System.Exception: cannot unify Float and Vector('n)
 // > unifyTest (Vector (LVar n)) (Vector (LNum 5));;
-// val it : string = "Vector(5)"
+// val it : string = "Vector(5)"                    OK
 // > unifyTest (Vector (LVar n)) (Vector (LVar o));;
+// val it : string = "Vector('n)"                     OK
+// > unifyTest (Vector (LVar n)) (Vector (LVar n));;                     OK
 // val it : string = "Vector('n)"
-// > unifyTest (Vector (LVar n)) (Vector (LVar n));;
-// val it : string = "Vector('n)"
-// > unifyTest (Fun (LVar n, Vector (LVar n))) (Fun (LVar o, Vector (LVar o)));;
+// > unifyTest (Fun (LVar n, Vector (LVar n))) (Fun (LVar o, Vector (LVar o)));;            OK
 // val it : string = "Vector('n) -> Vector('n)"
-// > unifyTest (Fun (LVar n, Vector (LVar o))) (Fun (LVar o, Vector (LVar n)));;
+// > unifyTest (Fun (LVar n, Vector (LVar o))) (Fun (LVar o, Vector (LVar n)));;          ATH fae vector('o) -> vector('o) en ekki 'n-> 'n
 // val it : string = "Vector('n) -> Vector('n)"
-// > unifyTest (Fun (LVar n, Vector (LVar o))) (Fun (LNum 4, Vector (LVar n)));;
+// > unifyTest (Fun (LVar n, Vector (LVar o))) (Fun (LNum 4, Vector (LVar n)));;      ATH fae 'o-> 'o en ekki 4->4
 // val it : string = "Vector(4) -> Vector(4)"
-// > unifyTest (Fun (LVar n, Vector (LNum 7))) (Fun (LNum 4, Vector (LNum 8)));;
+// > unifyTest (Fun (LVar n, Vector (LNum 7))) (Fun (LNum 4, Vector (LNum 8)));;          OK
 // System.Exception: lengths 7 and 8 differ
-// > unifyTest (Vector (LNum 7)) (Fun (LVar n, Vector (LVar o)));;
+// > unifyTest (Vector (LNum 7)) (Fun (LVar n, Vector (LVar o)));;              
 // System.Exception: cannot unify Vector(7) and Vector('n) -> Vector('o)
-// > unifyTest (Fun (LNum 7, Float)) (Fun (LVar n, Vector (LVar o)));;
+// > unifyTest (Fun (LNum 7, Float)) (Fun (LVar n, Vector (LVar o)));;          OK
 // System.Exception: cannot unify Float and Vector('o)
 
 // Test cases for Problem 5
