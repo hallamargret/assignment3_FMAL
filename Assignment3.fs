@@ -398,7 +398,9 @@ let inferTop e =
 
 let no_generalize : expr = LetFunNoGeneralize ("f", "x", 
                                     LetFunNoGeneralize ( "g", "y", 
-                                        LetFunNoGeneralize ( "h", "z", Plus (Var "z", Vect [1.0;2.0]), Call(Var "h", Vect [2.0; 3.0])), Call(Var "g", Vect [5.0])), Call(Var "f", Vect [8.0]))
+                                        LetFunNoGeneralize ( "h", "z", Plus (Var "z", Vect [1.0;2.0;3.0;5.5;6.9]), Call(Var "h", Vect [2.0; 3.0;4.7;1.3;6.0])), Call(Var "g", Vect [5.0])), Call(Var "f", Vect [8.0]))
+
+
 let other_no_generalize : expr = LetFun ("f", "x", 
                                     LetFun ( "g", "y", 
-                                        LetFun ( "h", "z", Plus (Var "z", Vect [1.0;2.0]), Call(Var "h", Vect [2.0; 3.0])), Call(Var "g", Vect [5.0])), Call(Var "f", Vect [8.0]))
+                                        LetFun ( "h", "z", Plus (Var "z", Vect [1.0;2.0;3.0;5.5;6.9]), Call(Var "h", Vect [2.0; 3.0;4.7;1.3;6.0])), Call(Var "g", Vect [5.0])), Call(Var "f", Vect [8.0]))
