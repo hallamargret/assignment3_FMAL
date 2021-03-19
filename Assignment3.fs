@@ -18,33 +18,47 @@ Under dynamic scoping the result is 11
 
 // Problem 2
 
-let rec list_fun (f: 'a -> 'a) (a: 'a) (xs: 'a list) :'a  = failwith "to implement"
-let rec option_fun f a xo = failwith "to implement"
+let rec list_fun f a xs = 
+    match xs with
+    | [x] -> x 
+    | x::xs -> f (list_fun f a xs)
+    | _ -> a
+
+let rec option_fun f a xo = 
+    match xo with
+    | Some x -> x 
+    | None -> a
+    | _ -> f (option_fun f a xo)
+
 
 // Problem 3
 
 (*
 ANSWER 3(i) HERE:
 Yes, the pair 'a -> 'a and 'a -> int list unify when 'a |-> int list
-Then: int list -> int list and int list -> int list
+Then: int list -> int list and 
+      int list -> int list
 *)
 
 (*
 ANSWER 3(ii) HERE:
 Yes, the pair'a -> 'b and 'a -> int list can be unified when 'b |-> int list
-Then: 'a -> int list and 'a -> int list
+Then: 'a -> int list and 
+      'a -> int list
 *)
 
 (*
 ANSWER 3(iii) HERE:
 Yes, (int -> int) -> (int -> int) and 'a -> 'a unify when 'a |-> (int -> int)
-Then: (int -> int) -> (int -> int) and (int -> int) -> (int -> int) 
+Then: (int -> int) -> (int -> int) and 
+      (int -> int) -> (int -> int) 
 *)
 
 (*
 ANSWER 3(iv) HERE:
 Yes, 'a list -> 'a list and 'b -> 'b unify when 'b |-> 'a list
-Then: 'a list -> 'a list and 'a list -> 'a list
+Then: 'a list -> 'a list and 
+      'a list -> 'a list
 *)
 
 (*
@@ -52,12 +66,14 @@ ANSWER 3(v) HERE:
 No, the pair 'a list -> 'a and 'b -> 'b does not unify because 'b -> 'b has to be of the same type and
  ’a and ’a list (cannot be of the same type) cannot be unified so we do not create infinite types.
 So because 'a list -> 'a will never be of the same type, then 'b -> 'b will never unify 'a list -> 'a.
+b' would have to be 'a and 'a list but it can not be both.
 *)
 
 (*
 ANSWER 3(vi) HERE:
 Yes, the pair ('a -> 'b) -> 'c and 'd -> 'e list can be unified when 'd |-> ('a -> 'b) and 'c |-> 'e list.
-Then: ('a -> 'b) -> 'e list and ('a -> 'b) -> 'e list 
+Then: ('a -> 'b) -> 'e list and 
+      ('a -> 'b) -> 'e list 
 
 *)
 
@@ -274,38 +290,38 @@ let rec unify (t1 : typ) (t2 : typ) : unit =
     match t1 with
     | Float -> match t2 with
                 | Float -> ()
-                | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-                | Fun (l, t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))   //Float and vector does not unify
+                | Fun (l, t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2)) //Float and fun does not unify
 
     | Vector i -> match t2 with
-                    | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                    | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))    //Float and vector does not unify
                     | Vector i2 -> unifyLength i i2
-                    | Fun (l,t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                    | Fun (l,t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2)) //Vector and fun does not unify
     
     | Fun (l, t) -> match t2 with
-                    | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-                    | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-                    | Fun (li, ti) -> unify t ti
-    
-    
-    // match t1, t2 with
-    // //| Float, Float -> 
-    // | Float , Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-    // | Vector i, Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-    // | Vector i1, Vector i2 -> unifyLength i1 i2
-    // | Fun (l, t), Vector i -> unifyLength (unify Vector l t) i
-    // | _ , _ -> ()
+                    | Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))     //Float and vector does not unify
+                    | Vector i -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))  //Vector and fun does not unify
+                    | Fun (li, ti) ->  match t with //unify t ti
+                                        | Vector il -> match il with 
+                                                        | LVar _ -> match ti with
+                                                                    | Vector ill -> match ill with
+                                                                                    | LVar _ -> unifyLength l il;
+                                                                                                unifyLength li ill;
+                                                                                                unify t ti;
+                                                                                    | LNum _ -> unifyLength l il;
+                                                                                                unify t ti;
+                                                                    | Float -> unify t ti
+                                                                    | _ -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                                                        | LNum _ -> match ti with
+                                                                    | Vector ill -> match ill with
+                                                                                    | LVar _ -> unifyLength li ill;
+                                                                                                unify t ti 
+                                                                                    | LNum _ -> unify t ti 
+                                                                    | Float -> unify t ti
+                                                                    | _ -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
+                                        | Float -> unify t ti
+                                        | _ -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
 
-
-    //| Fun (l, t), Float -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-    //| Float, Fun (l, t) -> failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-    //| Vector i, Fun (l, t) -> //failwith (sprintf "cannot unify %s and %s" (showType t1) (showType t2))
-    
-    
-    
-
-
-//    | Fun (l, t) -> sprintf "Vector(%s) -> %s" (showLength l) (showType t)
 
 // Problem 5
 
@@ -325,7 +341,7 @@ let rec infer (e : expr) (lvl : int) (env : tyenvir) : typ =
         match t1, t2 with
         | Float, Float -> Float
         | Vector l, Vector l2 -> Vector l
-        //| Float, Vector l -> failwith (sprintf "cannot unify %s and %s differ" (showLength l) (showLength l2))
+        | _, _ -> failwith "wrong operand type"
     | Average e ->
         let t = infer e lvl env
         ensureVector t;
@@ -380,6 +396,9 @@ let inferTop e =
 // Problem 6
 // Complete the following declaration, and uncomment it
 
-// let no_generalize : expr = ...
-
-
+let no_generalize : expr = LetFunNoGeneralize ("f", "x", 
+                                    LetFunNoGeneralize ( "g", "y", 
+                                        LetFunNoGeneralize ( "h", "z", Plus (Var "z", Vect [1.0;2.0]), Call(Var "h", Vect [2.0; 3.0])), Call(Var "g", Vect [5.0])), Call(Var "f", Vect [8.0]))
+let other_no_generalize : expr = LetFun ("f", "x", 
+                                    LetFun ( "g", "y", 
+                                        LetFun ( "h", "z", Plus (Var "z", Vect [1.0;2.0]), Call(Var "h", Vect [2.0; 3.0])), Call(Var "g", Vect [5.0])), Call(Var "f", Vect [8.0]))
